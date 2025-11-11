@@ -11,7 +11,6 @@ export default function Problem({
   id,
   title,
   difficulty,
-  concept,
   solved,
 }: ProblemProps) {
   const getDifficultyColor = () => {

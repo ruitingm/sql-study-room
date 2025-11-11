@@ -29,7 +29,7 @@ Write a SQL query to list all customers and their total amount spent, including 
 
   const model = "GPT";
   const [input, setInput] = useState("");
-  const chatEndRef = useRef(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -58,7 +58,7 @@ Write a SQL query to list all customers and their total amount spent, including 
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: any) => {
     if (e.key === "Enter") sendMessage();
   };
 
