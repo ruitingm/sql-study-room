@@ -5,6 +5,7 @@ import Setting from "../Setting/Setting";
 import Analysis from "../Report/Report";
 import AIChat from "../AIChat/AIChat";
 import AllProblems from "../Problem/AllProblems";
+import ProblemEdit from "../Problem/ProblemEdit";
 
 export default function MainPage() {
   return (
@@ -21,6 +22,7 @@ export default function MainPage() {
           <Route path="analysis" element={<Analysis />} />
           <Route path="allproblems" element={<AllProblems />} />
           <Route path="chat" element={<AIChat />} />
+          <Route path="problems/:qid" element={<ProblemEdit />} />
         </Routes>
       </div>
     </div>
