@@ -1,11 +1,34 @@
+// TODO:
+// 1. Connect to db for login credential check
 import { EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router";
+import { setCurrentUser } from "../Profile/userSlice";
+import { MockLogin } from "./MockLogin";
+import { useState } from "react";
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleLogin = () => {
-    navigate("/main");
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleLogin = (email: string, password: string) => {
+    const result = MockLogin(email, password);
+    if (!result.success) {
+      setError(result.message || null);
+      return;
+    }
+    if (result.user) {
+      dispatch(
+        setCurrentUser({
+          ...result.user,
+          registerDate: new Date(result.user.registerDate),
+        })
+      );
+      navigate("/main");
+    }
   };
   return (
     <div id="login" className="flex justify-center items-center">
@@ -26,6 +49,7 @@ export default function Login() {
               type="text"
               placeholder="Email"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-200"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="flex flex-col relative">
@@ -38,18 +62,31 @@ export default function Login() {
               placeholder="Password"
               autoComplete="off"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-200"
+              onChange={(e) => setPassword(e.target.value)}
             />
             <EyeOff
               size={18}
               className="absolute text-stone-400 cursor-pointer right-3 top-8"
             />
           </div>
+          {error && (
+            <div className="text-rose-700 flex mx-2 text-sm">{error}</div>
+          )}
           <button
             className="w-full bg-sky-600 py-2 rounded mt-4 hover:bg-sky-700 text-white text-lg font-semibold"
-            onClick={handleLogin}
+            onClick={(e) => {
+              e.preventDefault();
+              handleLogin(email, password);
+            }}
           >
             Log in
           </button>
+          <div className="text-sm text-center">
+            Do not have an account? &nbsp;
+            <Link to="/signup" className="text-sky-600 hover:text-sky-800">
+              Sign up here
+            </Link>
+          </div>
           <div className="relative flex items-center">
             <div className="grow border-t border-stone-400"></div>
             <span className="shrink mx-4 text-stone-400">or</span>

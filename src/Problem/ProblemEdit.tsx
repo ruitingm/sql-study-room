@@ -40,11 +40,11 @@ GROUP BY c.customer_id, c.name;`;
   return (
     <div className="flex h-screen bg-stone-100 text-stone-800 overflow-hidden">
       <div className="w-1/2 flex flex-col border-r border-stone-200 bg-stone-50 p-6 overflow-y-auto">
-        <div className="flex mb-4 text-stone-800">
+        <div className="flex mb-5 text-stone-800">
           <Link to="/main/allproblems">
-            <div className="flex items-center justify-center bg-neutral-200 rounded-3xl px-2 ">
+            <div className="flex items-center justify-center bg-neutral-200 rounded-3xl px-2 text-sm py-1 hover:bg-neutral-300">
               <Undo2 size={17} className="me-2" />
-              <span>Back to Questions</span>
+              <span>Back to All Questions</span>
             </div>
           </Link>
         </div>

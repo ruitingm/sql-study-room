@@ -1,7 +1,27 @@
+// TODO:
+// 1. Check user input values
+// 2. Set error messge for invalid user input
 import { EyeOff } from "lucide-react";
+import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { setCurrentUser } from "../Profile/userSlice";
 export default function Signup() {
+  const [user, setUser] = useState<any>({});
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [error] = useState(null);
+  const signupHandler = () => {
+    setUser({
+      ...user,
+      registerDate: new Date(),
+      isAdmin: false,
+      isStudent: true,
+    });
+    dispatch(setCurrentUser(user));
+    navigate("/main");
+  };
   return (
     <div id="signup" className="flex justify-center items-center">
       <div
@@ -22,6 +42,7 @@ export default function Signup() {
               type="text"
               placeholder="First Name"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-100 text-stone-700"
+              onChange={(e) => setUser({ ...user, firstName: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
@@ -36,6 +57,7 @@ export default function Signup() {
               type="text"
               placeholder="Last Name"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-100 text-stone-700"
+              onChange={(e) => setUser({ ...user, lastName: e.target.value })}
             />
           </div>
           <div className="flex flex-col">
@@ -47,6 +69,7 @@ export default function Signup() {
               type="text"
               placeholder="Email"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-100 text-stone-700"
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
             />
           </div>
           <div className="relative flex flex-col">
@@ -62,15 +85,19 @@ export default function Signup() {
               placeholder="Password"
               autoComplete="off"
               className="w-full rounded border border-stone-300 ps-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-stone-100 text-stone-700"
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
             <EyeOff
               size={18}
               className="absolute text-stone-400 cursor-pointer right-3 top-8"
             />
           </div>
+          {error && (
+            <div className="text-rose-700 flex mx-2 text-sm">{error}</div>
+          )}
           <button
-            className="w-full bg-sky-600 py-2 rounded mt-4 hover:bg-sky-700 text-white text-lg font-semibold
-          "
+            className="w-full bg-sky-600 py-2 rounded mt-4 hover:bg-sky-700 text-white text-lg font-semibold"
+            onClick={signupHandler}
           >
             Sign up
           </button>

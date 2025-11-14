@@ -1,13 +1,36 @@
+// TODO:
+// 1. User info dynamically display after connecting to database
+// 2. Make sure user edits write to database
+// 3. Edit cancel button after connecting to database
+// 4. Delete logout button type after connecting to database
 import dayjs from "dayjs";
 import { BellDot } from "lucide-react";
+import { useState } from "react";
+import userData from "../Database/user.json";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser, updateFirstName, updateLastName } from "./userSlice";
+import { useNavigate } from "react-router";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
 export default function Profile() {
-  const userFirstName = "Elly";
-  const userLastName = "Ma";
-  const registeredDate = "2025-10-01";
-  const userEmail = "rmruitingma@gmail.com";
-  const userType = "Student";
+  dayjs.extend(customParseFormat);
+  const { currentUser } = useSelector((state: any) => state.userReducer);
+  // Manually add user
+  const [firstName, setFirstName] = useState(
+    currentUser?.firstName || userData[0].firstName
+  );
+  const [lastName, setLastName] = useState(
+    currentUser?.lastName || userData[0].lastName
+  );
   const profilePicture = "/images/default_profile.jpg";
+  const email = currentUser?.email || userData[0].email;
+  const registerDate = currentUser?.registerDate || userData[0].registerDate;
+  const isStudent = currentUser?.isStudent || userData[0].isStudent;
+  //
   const today = dayjs().format("dddd, MMMM D, YYYY");
+  const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   return (
     <div id="profile" className="flex flex-col px-6">
       <header
@@ -15,7 +38,7 @@ export default function Profile() {
         className="flex items-center justify-between mb-5 mt-6"
       >
         <div>
-          <h1 className="text-xl text-stone-600">Welcome, {userFirstName}</h1>
+          <h1 className="text-xl text-stone-600">Welcome, {firstName}</h1>
           <h3 className="text-stone-600">{today}</h3>
         </div>
         <div className="flex space-x-5 items-center">
@@ -41,37 +64,90 @@ export default function Profile() {
               />
               <div>
                 <div className="text-xl text-stone-800 font-semibold">
-                  {userFirstName} {userLastName}
+                  {firstName} {lastName}
                 </div>
-                <div className="text-sm text-stone-600">{userEmail}</div>
+                <div className="text-sm text-stone-600">{email}</div>
               </div>
             </div>
-            <button
-              id="edit-profile-btn"
-              className="text-lg text-white bg-sky-600 rounded-sm px-5 py-1 hover:bg-sky-700"
-            >
-              Edit
-            </button>
+            {!isEditing && (
+              <button
+                id="edit-profile-btn"
+                className="text-lg text-white bg-sky-600 rounded-sm px-5 py-1 hover:bg-sky-700"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </button>
+            )}
+            {isEditing && (
+              <div className="flex space-x-2">
+                <button
+                  id="save-profile-btn"
+                  className="text-lg text-white bg-rose-700 rounded-sm px-5 py-1 hover:bg-rose-800"
+                  onClick={() => {
+                    dispatch(updateFirstName(firstName));
+                    dispatch(updateLastName(lastName));
+                    setIsEditing(false);
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  id="cancel-edit-profile-btn"
+                  className="text-lg text-stone-800 bg-neutral-200 rounded-sm px-4 py-1 hover:bg-neutral-300"
+                  onClick={() => {
+                    setFirstName(
+                      currentUser?.firstName || userData[0].firstName
+                    );
+                    setLastName(currentUser?.lastName || userData[0].lastName);
+                    setIsEditing(false);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-col text-stone-600 text-m space-y-5">
             <div className="flex space-x-10">
               <div className="flex flex-col flex-1">
                 <label htmlFor="first-name">First Name</label>
-                <input
-                  id="first-name"
-                  type="text"
-                  value={userFirstName}
-                  className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-                />
+                {!isEditing && (
+                  <input
+                    id="first-name"
+                    type="text"
+                    value={firstName}
+                    className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
+                  />
+                )}
+                {isEditing && (
+                  <input
+                    id="first-name"
+                    type="text"
+                    value={firstName}
+                    className="px-3 py-2 bg-gray-100 rounded-lg focus:ring-2 focus:ring-gray-300 border border-neutral-400"
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                )}
               </div>
               <div className="flex flex-col flex-1">
                 <label htmlFor="nickname">Last Name</label>
-                <input
-                  id="last-name"
-                  type="text"
-                  value={userLastName}
-                  className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 "
-                />
+                {!isEditing && (
+                  <input
+                    id="last-name"
+                    type="text"
+                    value={lastName}
+                    className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
+                  />
+                )}
+                {isEditing && (
+                  <input
+                    id="last-name"
+                    type="text"
+                    value={lastName}
+                    className="px-3 py-2 bg-gray-100 rounded-lg  focus:ring-2 focus:ring-gray-300 border border-neutral-400"
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                )}
               </div>
             </div>
             <div className="flex space-x-10">
@@ -80,8 +156,9 @@ export default function Profile() {
                 <input
                   id="register-date"
                   type="text"
-                  value={registeredDate}
-                  className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  value={dayjs(registerDate, "YYYY-MM-DD").format("YYYY-MM-DD")}
+                  className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
+                  readOnly
                 />
               </div>
               <div className="flex flex-col flex-1">
@@ -96,7 +173,7 @@ export default function Profile() {
                       id="student-btn"
                       type="radio"
                       className="me-2 ms-1"
-                      checked={userType === "Student"}
+                      checked={isStudent}
                     />
                     <label htmlFor="student-btn">Student</label>
                   </div>
@@ -106,7 +183,7 @@ export default function Profile() {
                       id="admin-btn"
                       type="radio"
                       className="me-2"
-                      // checked={userType === "Administrator"}
+                      checked={!isStudent}
                     />
                     <label htmlFor="admin-btn">Administrator</label>
                   </div>
@@ -116,6 +193,17 @@ export default function Profile() {
           </div>
         </div>
       </main>
+      <div className="flex my-10 justify-end">
+        <button
+          id="logout-btn"
+          className="px-10 py-2 bg-rose-700 hover:bg-rose-800 rounded-md text-white"
+          onClick={() => {
+            dispatch(setCurrentUser(null as any)), navigate("/login");
+          }}
+        >
+          Log Out
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,10 @@
+import { useRef } from "react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import Problem, { type ProblemProps } from "./Problem";
+
 export default function AllProblems() {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const problems: ProblemProps[] = [
     {
       id: 1,
@@ -39,31 +43,55 @@ export default function AllProblems() {
     },
   ];
 
+  const categories = [
+    "Basic",
+    "Join",
+    "Aggregation",
+    "Window Function",
+    "Conditional",
+    "Set Operation",
+    "Join",
+    "Aggregation",
+    "Window Function",
+    "Conditional",
+    "Set Operation",
+  ];
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 200, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full bg-stone-100 text-stone-900 rounded-xl p-4 overflow-hidden space-y-5">
-      <div className="flex flex-wrap gap-3">
-        {[
-          "Basic",
-          "Join",
-          "Aggregation",
-          "Window Function",
-          "Conditional",
-          "Set Operation",
-        ].map((topic, index) => (
-          <button
-            key={index}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              topic === "Basic"
-                ? "bg-stone-600 text-white"
-                : "bg-gray-300 hover:bg-stone-400 text-stone-800"
-            }`}
-          >
-            {topic}
-          </button>
-        ))}
+      <div className="relative flex items-center mb-8">
+        <div
+          ref={scrollRef}
+          className="flex flex-row gap-3 overflow-x-auto no-scrollbar scroll-smooth pr-12 w-[calc(100%-2.5rem)]"
+        >
+          {categories.map((topic, index) => (
+            <button
+              key={index}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors text-nowrap ${
+                topic === "Basic"
+                  ? "bg-stone-600 text-white"
+                  : "bg-gray-300 hover:bg-stone-400 text-stone-800"
+              }`}
+            >
+              {topic}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={scrollRight}
+          className="absolute right-0 bg-stone-200 hover:bg-stone-300 p-1 rounded-full shadow-sm"
+        >
+          <ChevronRight className="text-stone-700" size={20} />
+        </button>
       </div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 bg-stone-200 px-3 py-1 rounded-3xl w-3/4">
+        <div className="flex items-center gap-2 bg-stone-200 px-3 py-1 rounded-3xl w-1/2">
           <input
             type="text"
             placeholder="Search questions..."
