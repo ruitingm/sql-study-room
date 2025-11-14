@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye } from "lucide-react";
-import type { problemFilter } from "../types";
+import type { problemFilter } from "../Problem/problemType";
 
 export default function ProblemPanel() {
   const [filter, setFilter] = useState<problemFilter>("All");

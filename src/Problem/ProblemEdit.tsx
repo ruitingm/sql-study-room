@@ -1,30 +1,17 @@
+// TODO
+// 1. Add solution
 import { Check, X, Undo2 } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router";
+import type { RootState } from "../store/store";
 
 export default function ProblemEdit() {
-  const { qid } = useParams();
-  const qTitle = "Calculate Amount Spent";
-  const qDescription = `Tables:
-customers
-customer_id | name | city
-1 | Alice | New York
-2 | Bob | Chicago
-3 | Charlie | Los Angeles
-
-orders
-order_id | customer_id | order_date | total_amount
-101 | 1 | 2024-06-15 | 150.00
-102 | 2 | 2024-07-01 | 200.00
-103 | 1 | 2024-07-10 | 300.00
-104 | 3 | 2024-07-11 | 250.00
-
-Question:
-Write a SQL query to list all customers and their total amount spent, including customers who haven’t placed any orders yet.`;
-  const qSolution = `SELECT c.name, COALESCE(SUM(o.total_amount), 0) AS total_spent
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.name;`;
+  const { pId } = useParams();
+  const problems = useSelector(
+    (state: RootState) => state.problemReducer.problems
+  );
+  const problem = problems?.find((p) => Number(pId) === p.pId);
   const [submitted, setSubmitted] = useState(false);
   const [passed, setPassed] = useState(false);
   const [solutionVisible, setSolutionVisible] = useState(false);
@@ -49,11 +36,11 @@ GROUP BY c.customer_id, c.name;`;
           </Link>
         </div>
         <h2 className="text-2xl font-semibold mb-2 ms-2">
-          {qid}.&nbsp;{qTitle}
+          {pId}.&nbsp;{problem?.pTitle}
         </h2>
         <div className="bg-stone-100 rounded-lg p-4 text-md text-stone-700 mb-4 mt-2">
           <pre className="whitespace-pre-wrap wrap-break-word font-sans text-stone-700">
-            {qDescription}
+            {problem?.pDescription}
           </pre>
         </div>
         {submitted && (
@@ -84,7 +71,7 @@ GROUP BY c.customer_id, c.name;`;
               Solution
             </h3>
             <pre className="bg-stone-900 text-stone-50 rounded-lg p-4 text-sm overflow-x-auto shadow-inner mb-7">
-              {qSolution}
+              {/* {problem?.pSolution?.sDesciption} */}
             </pre>
           </div>
         )}

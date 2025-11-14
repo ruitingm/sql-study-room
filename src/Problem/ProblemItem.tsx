@@ -8,14 +8,18 @@ export type ProblemProps = {
 
 import { Check } from "lucide-react";
 import { Link } from "react-router";
-export default function Problem({
-  id,
-  title,
-  difficulty,
-  solved,
-}: ProblemProps) {
+import type { ProblemDifficultyTag } from "./problemType";
+export default function ProblemItem({
+  pId,
+  pTitle,
+  difficultyTag,
+}: {
+  pId: number;
+  pTitle: string;
+  difficultyTag: ProblemDifficultyTag;
+}) {
   const getDifficultyColor = () => {
-    switch (difficulty) {
+    switch (difficultyTag) {
       case "Easy":
         return "text-emerald-600";
       case "Medium":
@@ -26,10 +30,10 @@ export default function Problem({
         return "text-gray-700";
     }
   };
-
+  const solved = true;
   return (
     <Link
-      to={`/main/problems/${id}`}
+      to={`/main/problems/${pId}`}
       className="flex justify-between items-center ps-2 pe-5 py-3 rounded-lg transition odd:bg-stone-50 even:bg-stone-200 mb-1 hover:cursor-pointer"
     >
       <div className="w-5 flex justify-center me-2">
@@ -37,13 +41,13 @@ export default function Problem({
       </div>
       <div className="flex items-center gap-3 flex-1">
         <span className="font-medium">
-          {id}. {title}
+          {pId}. {pTitle}
         </span>
       </div>
 
       <div className="flex items-center gap-6 text-sm">
         <span className={`${getDifficultyColor()} font-semibold`}>
-          {difficulty}
+          {difficultyTag}
         </span>
       </div>
     </Link>

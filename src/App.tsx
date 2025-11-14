@@ -3,22 +3,26 @@ import "./App.css";
 import Login from "./Login/Login";
 import Signup from "./Login/Signup";
 import MainPage from "./MainPage/MainPage";
-import { Provider } from "react-redux";
-import store from "./store/store";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { setProblems } from "./Problem/problemSlice";
+import { parseProblems } from "./Problem/problemParser";
 
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setProblems(parseProblems()));
+  }, []);
   return (
     <div id="sql-study-room" className="bg-stone-50 min-h-screen">
-      <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/signup" />} />
-            <Route path="/main/*" element={<MainPage />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </BrowserRouter>
-      </Provider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/signup" />} />
+          <Route path="/main/*" element={<MainPage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

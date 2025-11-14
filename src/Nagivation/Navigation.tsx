@@ -8,8 +8,12 @@ import {
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router";
-import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
 export default function NavigationBar() {
+  const currentUser = useSelector(
+    (state: RootState) => state.userReducer.currentUser
+  );
   const { pathname } = useLocation();
   const navLinks = [
     { label: "problem", path: "/main/allproblems", icon: ScrollText },
@@ -24,7 +28,6 @@ export default function NavigationBar() {
     },
     { label: "settings", path: "/main/settings", icon: Settings },
   ];
-  const [isAdmin] = useState(true);
   return (
     <aside
       id="navigation"
@@ -39,7 +42,7 @@ export default function NavigationBar() {
           />
         </Link>
         {navLinks
-          .filter((link) => !link.adminOnly || isAdmin)
+          .filter((link) => !link.adminOnly || currentUser?.isAdmin)
           .map((link) => {
             const isActive = pathname.includes(link.label);
             return (

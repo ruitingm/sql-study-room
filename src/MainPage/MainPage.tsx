@@ -7,19 +7,18 @@ import Report from "../Report/Report";
 import AllProblems from "../Problem/AllProblems";
 import ProblemEdit from "../Problem/ProblemEdit";
 import AdminControl from "../AdminControl/AdminControl";
-import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
 
 export default function MainPage() {
-  const [isAdmin] = useState(true);
+  const currentUser = useSelector(
+    (state: RootState) => state.userReducer.currentUser
+  );
   return (
-    <div
-      id="main-page"
-      className="grid h-screen grid-cols-1 md:grid-cols-[5rem_1fr] gap-2"
-    >
+    <div className="grid h-screen grid-cols-1 md:grid-cols-[5rem_1fr] gap-4 p-4">
       <div className="hidden md:block">
         <NavigationBar />
       </div>
-
       <div className="bg-stone-100 rounded-xl my-4 mx-2 overflow-hidden">
         <Routes>
           <Route path="/" element={<Navigate to="allproblems" />} />
@@ -28,8 +27,10 @@ export default function MainPage() {
           <Route path="report" element={<Report />} />
           <Route path="allproblems" element={<AllProblems />} />
           <Route path="chat" element={<AIChat />} />
-          <Route path="problems/:qid" element={<ProblemEdit />} />
-          {isAdmin && <Route path="admin-control" element={<AdminControl />} />}
+          <Route path="problems/:pId" element={<ProblemEdit />} />
+          {currentUser?.isAdmin && (
+            <Route path="admin-control" element={<AdminControl />} />
+          )}
         </Routes>
       </div>
     </div>
