@@ -60,7 +60,7 @@ export default function AllProblems() {
       </div>
       <div className="flex-1 overflow-y-auto rounded-lg ">
         {problems?.map((p: any) => (
-          <div>
+          <div key={p.pId}>
             <ProblemItem
               pId={p.pId}
               pTitle={p.pTitle}

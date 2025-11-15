@@ -15,11 +15,11 @@ export default function MainPage() {
     (state: RootState) => state.userReducer.currentUser
   );
   return (
-    <div className="grid h-screen grid-cols-1 md:grid-cols-[5rem_1fr] gap-4 p-4">
+    <div className="grid h-screen grid-cols-1 md:grid-cols-[5rem_1fr] gap-4 p-2 overflow-hidden">
       <div className="hidden md:block">
         <NavigationBar />
       </div>
-      <div className="bg-stone-100 rounded-xl my-4 mx-2 overflow-hidden">
+      <div className="bg-stone-100 rounded-xl m-2 flex flex-col min-h-0 overflow-hidden">
         <Routes>
           <Route path="/" element={<Navigate to="allproblems" />} />
           <Route path="settings" element={<Setting />} />
@@ -29,7 +29,7 @@ export default function MainPage() {
           <Route path="chat" element={<AIChat />} />
           <Route path="problems/:pId" element={<ProblemEdit />} />
           {currentUser?.isAdmin && (
-            <Route path="admin-control" element={<AdminControl />} />
+            <Route path="admin-control/*" element={<AdminControl />} />
           )}
         </Routes>
       </div>

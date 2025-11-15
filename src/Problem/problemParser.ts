@@ -10,8 +10,8 @@ export function parseProblems(): Problem[] {
     return {
       ...p,
       difficultyTag: difficulty as ProblemDifficultyTag,
-      pSolutionId: p.pSolutionId,
-      conceptTag: [...p.conceptTag],
+      // pSolutionId: p.pSolutionId,
+      // conceptTag: [...p.conceptTag],
     };
   });
 }

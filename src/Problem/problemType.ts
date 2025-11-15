@@ -1,9 +1,5 @@
-export type ProblemDifficultyTag = "Easy" | "Medium" | "Hard";
-
-export type ProblemSolution = {
-  sId: number;
-  sDescription: string;
-};
+export const problemDifficulties = ["Easy", "Medium", "Hard"] as const;
+export type ProblemDifficultyTag = (typeof problemDifficulties)[number];
 
 export type Problem = {
   pId: number;
@@ -12,7 +8,7 @@ export type Problem = {
   conceptTag: string[];
   pDescription: string;
   pSolutionId: number | null;
-  pSolution?: ProblemSolution;
+  reviewed: boolean;
 };
 
 export type ProblemDataset = {

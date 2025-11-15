@@ -24,6 +24,7 @@ const problemSlice = createSlice({
         conceptTag: action.payload.conceptTag,
         pDescription: action.payload.pDescription,
         pSolutionId: action.payload.pSolutionId,
+        reviewed: true,
       };
       state.problems = state.problems
         ? [...state.problems, newProblem]

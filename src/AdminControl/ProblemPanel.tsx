@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Eye } from "lucide-react";
+import { Eye, PencilLine } from "lucide-react";
 import type { problemFilter } from "../Problem/problemType";
+import type { RootState } from "../store/store";
+import { useSelector } from "react-redux";
 
-export default function ProblemPanel() {
+export default function ProblemPanel({
+  onCreate,
+  onEdit,
+}: {
+  onCreate: () => void;
+  onEdit: (pId: number) => void;
+}) {
   const [filter, setFilter] = useState<problemFilter>("All");
-  const problems = [
-    { id: 1, title: "SQL JOIN Practice", reviewed: true },
-    { id: 2, title: "Window Functions", reviewed: false },
-    { id: 3, title: "Subqueries", reviewed: true },
-    { id: 4, title: "Group By", reviewed: false },
-  ];
-  const filteredProblems = problems.filter((p) => {
+  const problems = useSelector(
+    (state: RootState) => state.problemReducer.problems
+  );
+  const filteredProblems = problems?.filter((p) => {
     if (filter === "All") return true;
     if (filter === "Reviewed") return p.reviewed === true;
     return p.reviewed === false;
@@ -47,13 +52,13 @@ export default function ProblemPanel() {
         <div className="flex flex-1 overflow-y-auto">
           <table className="w-full text-center table-fixed">
             <tbody>
-              {filteredProblems.map((p) => (
+              {filteredProblems?.map((p) => (
                 <tr
-                  key={p.id}
+                  key={p.pId}
                   className="border-b border-stone-200 hover:bg-stone-100"
                 >
-                  <td className="p-3">{p.id}</td>
-                  <td className="p-3">{p.title}</td>
+                  <td className="p-3">{p.pId}</td>
+                  <td className="p-3">{p.pTitle}</td>
                   <td className="p-3">
                     {p.reviewed ? (
                       <span className="text-emerald-700">Reviewed</span>
@@ -63,9 +68,26 @@ export default function ProblemPanel() {
                   </td>
                   <td className="p-3">
                     <div className="flex justify-center items-center">
-                      <button className="text-sky-700 hover:text-sky-900 hover:cursor-pointer">
-                        <Eye size={20} />
-                      </button>
+                      {!p.reviewed && (
+                        <div>
+                          <button
+                            className="text-sky-700 hover:text-sky-900 hover:cursor-pointer"
+                            onClick={onCreate}
+                          >
+                            <Eye size={20} />
+                          </button>
+                        </div>
+                      )}
+                      {p.reviewed && (
+                        <div>
+                          <button
+                            className="text-emerald-700 hover:text-emerald-900 hover:cursor-pointer"
+                            onClick={() => onEdit(p.pId)}
+                          >
+                            <PencilLine size={20} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>

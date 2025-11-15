@@ -26,63 +26,63 @@ export default function UserPanel() {
       role: "admin",
     },
     {
-      id: 1,
+      id: 4,
       firstName: "alice",
       lastName: "A",
       email: "alice@gmail.com",
       role: "user",
     },
     {
-      id: 2,
+      id: 5,
       firstName: "bob",
       lastName: "B",
       email: "bob@gmail.com",
       role: "user",
     },
     {
-      id: 3,
+      id: 6,
       firstName: "admin",
       lastName: "C",
       email: "admin@gmail.com",
       role: "admin",
     },
     {
-      id: 1,
+      id: 7,
       firstName: "alice",
       lastName: "A",
       email: "alice@gmail.com",
       role: "user",
     },
     {
-      id: 2,
+      id: 8,
       firstName: "bob",
       lastName: "B",
       email: "bob@gmail.com",
       role: "user",
     },
     {
-      id: 3,
+      id: 9,
       firstName: "admin",
       lastName: "C",
       email: "admin@gmail.com",
       role: "admin",
     },
     {
-      id: 1,
+      id: 10,
       firstName: "alice",
       lastName: "A",
       email: "alice@gmail.com",
       role: "user",
     },
     {
-      id: 2,
+      id: 11,
       firstName: "bob",
       lastName: "B",
       email: "bob@gmail.com",
       role: "user",
     },
     {
-      id: 3,
+      id: 12,
       firstName: "admin",
       lastName: "C",
       email: "admin@gmail.com",
@@ -106,7 +106,7 @@ export default function UserPanel() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full">
         <table className="w-full text-center table-fixed">
           <thead className="bg-stone-200 text-stone-700">
             <tr>

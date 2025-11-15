@@ -1,6 +1,7 @@
 // TODO:
 // 1. Check user input values
 // 2. Set error messge for invalid user input
+// 3. Set visible password when click on eye button
 import { EyeOff } from "lucide-react";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";

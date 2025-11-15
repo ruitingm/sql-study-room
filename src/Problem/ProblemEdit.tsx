@@ -12,6 +12,11 @@ export default function ProblemEdit() {
     (state: RootState) => state.problemReducer.problems
   );
   const problem = problems?.find((p) => Number(pId) === p.pId);
+  const solutions = useSelector(
+    (state: RootState) => state.solutionReducer.solutions
+  );
+  const solution = solutions?.find((s) => problem?.pSolutionId === s.sId);
+  console.log(solution);
   const [submitted, setSubmitted] = useState(false);
   const [passed, setPassed] = useState(false);
   const [solutionVisible, setSolutionVisible] = useState(false);
@@ -71,7 +76,7 @@ export default function ProblemEdit() {
               Solution
             </h3>
             <pre className="bg-stone-900 text-stone-50 rounded-lg p-4 text-sm overflow-x-auto shadow-inner mb-7">
-              {/* {problem?.pSolution?.sDesciption} */}
+              {solution?.sDescription}
             </pre>
           </div>
         )}

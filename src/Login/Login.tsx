@@ -1,5 +1,6 @@
 // TODO:
 // 1. Connect to db for login credential check
+// 2. Set visible password when click on eye button
 import { EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useDispatch } from "react-redux";

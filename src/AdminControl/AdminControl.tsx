@@ -1,16 +1,30 @@
 import { useState } from "react";
 import UserPanel from "./UserPanel";
 import ProblemPanel from "./ProblemPanel";
+// import ProblemCreation from "./ProblemCreation";
+import ProblemEditor from "./ProblemEditor";
 
 export default function AdminControl() {
   const [tab, setTab] = useState<"users" | "problems">("users");
-
+  const [problemViewMode, setProblemViewMode] = useState<
+    "list" | "create" | "edit"
+  >("list");
+  const [selectedProblemId, setSelectedProblemId] = useState<number | null>(
+    null
+  );
+  const resetProblemView = () => {
+    setProblemViewMode("list");
+    setSelectedProblemId(null);
+  };
   return (
     <div className="w-full h-screen bg-stone-100 text-stone-800 p-6">
       <h1 className="text-3xl font-semibold mb-6">Administrator Dashboard</h1>
       <div className="flex gap-4 border-b border-stone-300 pb mb-6">
         <button
-          onClick={() => setTab("users")}
+          onClick={() => {
+            setTab("users");
+            resetProblemView();
+          }}
           className={`px-4 py-2 font-medium rounded-t-lg ${
             tab === "users"
               ? "bg-stone-300 text-stone-900"
@@ -20,7 +34,10 @@ export default function AdminControl() {
           Users
         </button>
         <button
-          onClick={() => setTab("problems")}
+          onClick={() => {
+            setTab("problems");
+            resetProblemView();
+          }}
           className={`px-4 py-2 font-medium rounded-t-lg ${
             tab === "problems"
               ? "bg-stone-300 text-stone-900"
@@ -30,7 +47,26 @@ export default function AdminControl() {
           Problems
         </button>
       </div>
-      {tab === "users" ? <UserPanel /> : <ProblemPanel />}
+      {tab === "users" && <UserPanel />}
+      {tab === "problems" && (
+        <>
+          {problemViewMode === "list" && (
+            <ProblemPanel
+              onCreate={() => setProblemViewMode("create")}
+              onEdit={(id: number) => {
+                setSelectedProblemId(id);
+                setProblemViewMode("edit");
+              }}
+            />
+          )}
+          {/* {problemViewMode === "create" && (
+            <ProblemCreation onBack={resetProblemView} />
+          )} */}
+          {problemViewMode === "edit" && selectedProblemId && (
+            <ProblemEditor pId={selectedProblemId} onBack={resetProblemView} />
+          )}
+        </>
+      )}
     </div>
   );
 }
