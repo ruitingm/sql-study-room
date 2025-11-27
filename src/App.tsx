@@ -9,12 +9,15 @@ import { setProblems } from "./Problem/problemSlice";
 import { parseProblems } from "./Problem/problemParser";
 import { setSolutions } from "./Problem/solutionSlice";
 import solutionJson from "./Database/solution.json";
+import { setUsers } from "./Profile/userSlice";
+import userJson from "./Database/user.json";
 
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(setProblems(parseProblems()));
     dispatch(setSolutions(solutionJson));
+    dispatch(setUsers(userJson));
   }, []);
   return (
     <div id="sql-study-room" className="bg-stone-50 min-h-screen">

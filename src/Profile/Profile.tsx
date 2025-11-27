@@ -31,6 +31,10 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  console.log("currentUser");
+  console.log(currentUser);
+  console.log("DATE");
+  console.log(registerDate);
   return (
     <div id="profile" className="flex flex-col px-6">
       <header
@@ -117,6 +121,7 @@ export default function Profile() {
                     type="text"
                     value={firstName}
                     className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
+                    readOnly
                   />
                 )}
                 {isEditing && (
@@ -137,6 +142,7 @@ export default function Profile() {
                     type="text"
                     value={lastName}
                     className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
+                    readOnly
                   />
                 )}
                 {isEditing && (
@@ -156,7 +162,11 @@ export default function Profile() {
                 <input
                   id="register-date"
                   type="text"
-                  value={dayjs(registerDate, "YYYY-MM-DD").format("YYYY-MM-DD")}
+                  value={
+                    dayjs(registerDate).isValid()
+                      ? dayjs(registerDate).format("YYYY-MM-DD")
+                      : ""
+                  }
                   className="px-3 py-2 bg-gray-100 rounded-lg focus:outline-none"
                   readOnly
                 />

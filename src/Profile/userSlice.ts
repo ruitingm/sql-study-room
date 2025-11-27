@@ -4,10 +4,12 @@ import type { User } from "./userType";
 
 type userState = {
   currentUser: User | null;
+  users: User[];
 };
 
 const initialState: userState = {
   currentUser: null,
+  users: [],
 };
 
 const userSlice = createSlice({
@@ -27,8 +29,21 @@ const userSlice = createSlice({
         state.currentUser.lastName = action.payload;
       }
     },
+    setUsers: (state, action: PayloadAction<User[]>) => {
+      state.users = action.payload;
+    },
+    deleteUser: (state, action: PayloadAction<User>) => {
+      state.users = state.users.filter(
+        (user) => user.userId !== action.payload.userId
+      );
+    },
   },
 });
-export const { setCurrentUser, updateFirstName, updateLastName } =
-  userSlice.actions;
+export const {
+  setCurrentUser,
+  updateFirstName,
+  updateLastName,
+  setUsers,
+  deleteUser,
+} = userSlice.actions;
 export default userSlice.reducer;

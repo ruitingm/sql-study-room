@@ -1,22 +1,6 @@
 export const problemDifficulties = ["Easy", "Medium", "Hard"] as const;
 export type ProblemDifficultyTag = (typeof problemDifficulties)[number];
 
-export type Problem = {
-  pId: number;
-  pTitle: string;
-  difficultyTag: ProblemDifficultyTag;
-  conceptTag: string[];
-  pDescription: string;
-  pSolutionId: number | null;
-  reviewed: boolean;
-};
-
-export type ProblemDataset = {
-  pId: number;
-};
-
-export type problemFilter = "All" | "Reviewed" | "Unreviewed";
-
 export const problemCategories = [
   "Basic",
   "Join",
@@ -29,3 +13,19 @@ export const problemCategories = [
 ] as const;
 
 export type ProblemCategory = (typeof problemCategories)[number];
+
+export type Problem = {
+  pId: number;
+  pTitle: string;
+  difficultyTag: ProblemDifficultyTag;
+  conceptTag: ProblemCategory[];
+  pDescription: string;
+  pSolutionId: number | null;
+  reviewed: boolean;
+};
+
+export type ProblemDataset = {
+  pId: number;
+};
+
+export type problemFilter = "All" | "Reviewed" | "Unreviewed";

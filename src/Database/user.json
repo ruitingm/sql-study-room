@@ -6,7 +6,7 @@
     "lastName": "Smith",
     "isAdmin": true,
     "isStudent": false,
-    "registerDate": "'2025-11-01T16:20:00.000Z';",
+    "registerDate": "2025-11-01T16:20:00.000Z",
     "password": "123"
   },
   {
@@ -16,7 +16,17 @@
     "lastName": "Ma",
     "isAdmin": false,
     "isStudent": true,
-    "registerDate": "'2025-11-02T12:20:00.000Z';",
+    "registerDate": "2025-11-02T12:20:00.000Z",
+    "password": "123"
+  },
+  {
+    "userId": 3,
+    "email": "bob@gmail.com",
+    "firstName": "Bob",
+    "lastName": "Smith",
+    "isAdmin": false,
+    "isStudent": true,
+    "registerDate": "2025-11-03T12:20:00.000Z",
     "password": "123"
   }
 ]

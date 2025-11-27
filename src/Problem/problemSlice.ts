@@ -38,7 +38,7 @@ const problemSlice = createSlice({
         : state.problems;
     },
     updateProblem: (state, action: PayloadAction<Problem>) => {
-      state.problems
+      state.problems = state.problems
         ? (state.problems.map((p: Problem) =>
             p.pId === action.payload.pId ? action.payload : p
           ) as Problem[])

@@ -25,7 +25,6 @@ export default function Login() {
       dispatch(
         setCurrentUser({
           ...result.user,
-          registerDate: new Date(result.user.registerDate),
         })
       );
       navigate("/main");

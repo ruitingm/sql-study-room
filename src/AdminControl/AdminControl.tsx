@@ -1,8 +1,8 @@
 import { useState } from "react";
 import UserPanel from "./UserPanel";
 import ProblemPanel from "./ProblemPanel";
-// import ProblemCreation from "./ProblemCreation";
 import ProblemEditor from "./ProblemEditor";
+import ProblemCreation from "./ProblemCreation";
 
 export default function AdminControl() {
   const [tab, setTab] = useState<"users" | "problems">("users");
@@ -17,7 +17,7 @@ export default function AdminControl() {
     setSelectedProblemId(null);
   };
   return (
-    <div className="w-full h-screen bg-stone-100 text-stone-800 p-6">
+    <div className="w-full h-full flex flex-col bg-stone-100 text-stone-800 p-6 min-h-0">
       <h1 className="text-3xl font-semibold mb-6">Administrator Dashboard</h1>
       <div className="flex gap-4 border-b border-stone-300 pb mb-6">
         <button
@@ -52,16 +52,19 @@ export default function AdminControl() {
         <>
           {problemViewMode === "list" && (
             <ProblemPanel
-              onCreate={() => setProblemViewMode("create")}
+              onCreate={(id: number) => {
+                setProblemViewMode("create")
+                setSelectedProblemId(id)
+              }}
               onEdit={(id: number) => {
                 setSelectedProblemId(id);
                 setProblemViewMode("edit");
               }}
             />
           )}
-          {/* {problemViewMode === "create" && (
-            <ProblemCreation onBack={resetProblemView} />
-          )} */}
+          {problemViewMode === "create" && selectedProblemId &&(
+            <ProblemCreation pId={selectedProblemId} onBack={resetProblemView} />
+          )}
           {problemViewMode === "edit" && selectedProblemId && (
             <ProblemEditor pId={selectedProblemId} onBack={resetProblemView} />
           )}

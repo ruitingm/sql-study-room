@@ -5,6 +5,6 @@ export type User = {
   lastName: string;
   isAdmin: boolean;
   isStudent: boolean;
-  registerDate: Date;
-  password: string;
+  registerDate: string;
+  // password: string;
 };

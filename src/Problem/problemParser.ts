@@ -1,4 +1,4 @@
-import type { Problem, ProblemDifficultyTag } from "./problemType";
+import type { Problem, ProblemCategory, ProblemDifficultyTag } from "./problemType";
 import problemJson from "../Database/problem.json";
 
 export function parseProblems(): Problem[] {
@@ -10,8 +10,7 @@ export function parseProblems(): Problem[] {
     return {
       ...p,
       difficultyTag: difficulty as ProblemDifficultyTag,
-      // pSolutionId: p.pSolutionId,
-      // conceptTag: [...p.conceptTag],
+      conceptTag: p.conceptTag as ProblemCategory[],
     };
   });
 }

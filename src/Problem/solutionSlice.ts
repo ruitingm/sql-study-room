@@ -33,7 +33,7 @@ const solutionSlice = createSlice({
         : state.solutions;
     },
     updateSolution: (state, action: PayloadAction<Solution>) => {
-      state.solutions
+      state.solutions = state.solutions
         ? (state.solutions.map((s: Solution) =>
             s.sId === action.payload.sId ? action.payload : s
           ) as Solution[])

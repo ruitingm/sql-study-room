@@ -1,102 +1,21 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
+import DeleteModal from "./DeleteModal";
 
 export default function UserPanel() {
   const [search, setSearch] = useState("");
-  const users = [
-    {
-      id: 1,
-      firstName: "alice",
-      lastName: "A",
-      email: "alice@gmail.com",
-      role: "user",
-    },
-    {
-      id: 2,
-      firstName: "bob",
-      lastName: "B",
-      email: "bob@gmail.com",
-      role: "user",
-    },
-    {
-      id: 3,
-      firstName: "admin",
-      lastName: "C",
-      email: "admin@gmail.com",
-      role: "admin",
-    },
-    {
-      id: 4,
-      firstName: "alice",
-      lastName: "A",
-      email: "alice@gmail.com",
-      role: "user",
-    },
-    {
-      id: 5,
-      firstName: "bob",
-      lastName: "B",
-      email: "bob@gmail.com",
-      role: "user",
-    },
-    {
-      id: 6,
-      firstName: "admin",
-      lastName: "C",
-      email: "admin@gmail.com",
-      role: "admin",
-    },
-    {
-      id: 7,
-      firstName: "alice",
-      lastName: "A",
-      email: "alice@gmail.com",
-      role: "user",
-    },
-    {
-      id: 8,
-      firstName: "bob",
-      lastName: "B",
-      email: "bob@gmail.com",
-      role: "user",
-    },
-    {
-      id: 9,
-      firstName: "admin",
-      lastName: "C",
-      email: "admin@gmail.com",
-      role: "admin",
-    },
-    {
-      id: 10,
-      firstName: "alice",
-      lastName: "A",
-      email: "alice@gmail.com",
-      role: "user",
-    },
-    {
-      id: 11,
-      firstName: "bob",
-      lastName: "B",
-      email: "bob@gmail.com",
-      role: "user",
-    },
-    {
-      id: 12,
-      firstName: "admin",
-      lastName: "C",
-      email: "admin@gmail.com",
-      role: "admin",
-    },
-  ];
+  const users = useSelector((state: RootState) => state.userReducer.users);
   const filteredUsers = users.filter(
     (u) =>
       u.firstName.toLowerCase().includes(search.toLowerCase()) ||
       u.lastName.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
   );
+  const [openModal, setOpenModal] = useState(false);
   return (
-    <div className=" bg-stone-50 border border-stone-200 rounded-xl p-4 shadow-sm h-[600px]">
+    <div className="flex flex-col bg-stone-50 border border-stone-200 rounded-xl p-4 shadow-sm h-full min-h-0">
       <div className="flex items-center mb-4">
         <input
           type="text"
@@ -106,7 +25,7 @@ export default function UserPanel() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col flex-1 min-h-0">
         <table className="w-full text-center table-fixed">
           <thead className="bg-stone-200 text-stone-700">
             <tr>
@@ -118,23 +37,52 @@ export default function UserPanel() {
             </tr>
           </thead>
         </table>
-        <div className="flex flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <table className="w-full table-fixed text-center">
             <tbody>
               {filteredUsers.map((user) => (
                 <tr
-                  key={user.id}
+                  key={user.userId}
                   className="border-b border-stone-200 hover:bg-stone-100"
                 >
-                  <td className="p-3">{user.firstName}</td>
-                  <td className="p-3">{user.lastName}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3">{user.role}</td>
+                  <td className="p-3">
+                    <div className="truncate" title={user.firstName}>
+                      {user.firstName}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="truncate" title={user.lastName}>
+                      {user.lastName}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="truncate" title={user.email}>
+                      {user.email}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div
+                      className="truncate"
+                      title={user.isAdmin ? "Admin" : "Student"}
+                    >
+                      {user.isAdmin ? "Admin" : "Student"}
+                    </div>
+                  </td>
                   <td className="p-3">
                     <div className="flex items-center justify-center">
-                      <button className="text-rose-700 hover:text-rose-800 hover:cursor-pointer">
+                      <button
+                        className="text-rose-700 hover:text-rose-800 hover:cursor-pointer"
+                        onClick={() => setOpenModal(true)}
+                      >
                         <Trash2 size={20} />
                       </button>
+                      {openModal && (
+                        <DeleteModal
+                          openModal={openModal}
+                          setOpenModal={setOpenModal}
+                          user={user}
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>

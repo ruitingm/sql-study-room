@@ -9,6 +9,7 @@ import {
   type ProblemCategory,
   type ProblemDifficultyTag,
 } from "../Problem/problemType";
+import { addSolution } from "../Problem/solutionSlice";
 export default function ProblemEditor({
   pId,
   onBack,
@@ -34,49 +35,42 @@ export default function ProblemEditor({
       </div>
     );
   }
-  const [title, setTitle] = useState<string | undefined>(problem?.pTitle);
-  const [description, setDescription] = useState<string | undefined>(
-    problem?.pDescription
+  const [title, setTitle] = useState(problem.pTitle);
+  const [description, setDescription] = useState(problem.pDescription);
+  const [difficulty, setDifficulty] = useState<ProblemDifficultyTag>(
+    problem.difficultyTag
   );
-  const [difficulty, setDifficulty] = useState<
-    ProblemDifficultyTag | undefined
-  >(problem.difficultyTag);
-  const [concepts, setConcepts] = useState<string[] | undefined>(
-    problem?.conceptTag
-  );
+  const [concepts, setConcepts] = useState<ProblemCategory[]>([...problem.conceptTag]);
   const solutions = useSelector(
     (state: RootState) => state.solutionReducer.solutions
   );
-  const [solution, setSolution] = useState<string | undefined>();
-  const getProblemSolution = (pId: Number) => {
-    const solutionId = problems?.find((p) => pId === p.pId);
-    const solution = solutions?.find((s) => s.sId === Number(solutionId));
-    setSolution(solution ? solution.sDescription : "");
-  };
+  const pSolution  = solutions?.find((s) => s.sId === problem.pSolutionId);
+  const [solution, setSolution] = useState<string>(pSolution ? pSolution.sDescription : "");
   const toggleConcept = (tag: ProblemCategory) => {
     setConcepts((prev) =>
-      prev?.includes(tag)
-        ? prev.filter((c) => c !== tag)
-        : [...(prev || []), tag]
+      prev.includes(tag) ? prev.filter((c) => c !== tag) : [...prev, tag]
     );
   };
   const handleSave = () => {
+    const tempSolutionId = Math.floor(Math.random() * 1000000);
+    dispatch(
+      addSolution({
+        sId: tempSolutionId,
+        sDescription: solution,
+      })
+    );
     const updatedProblem: Problem = {
-      ...updateProblem,
-      pId: pId,
-      pTitle: title!,
-      difficultyTag: difficulty!,
-      conceptTag: concepts!,
-      pDescription: description!,
-      pSolutionId: problem.pSolutionId,
+      ...problem,
+      pTitle: title,
+      difficultyTag: difficulty,
+      conceptTag: concepts,
+      pDescription: description,
+      pSolutionId: tempSolutionId,
       reviewed: true,
     };
     dispatch(updateProblem(updatedProblem));
     onBack();
   };
-  useEffect(() => {
-    getProblemSolution(pId);
-  }, []);
   return (
     <div className="bg-white rounded-xl shadow-md p-6 h-[600px] overflow-y-auto text-stone-800">
       <h2 className="text-2xl font-semibold mb-6">Edit Problem</h2>
@@ -153,7 +147,7 @@ export default function ProblemEditor({
       <div className="mb-6">
         <label className="text-sm font-medium text-stone-600">Solution</label>
         <textarea
-          value={solution ? "" : solution}
+          value={solution}
           onChange={(e) => setSolution(e.target.value)}
           rows={6}
           className="w-full mt-1 border border-stone-300 rounded px-3 py-2 focus:ring-2 focus:ring-stone-300 focus:outline-none"
