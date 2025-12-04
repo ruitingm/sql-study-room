@@ -1,11 +1,15 @@
 # Local development settings - not tracked by git
 from .settings import *
 
-# Use SQLite for local development
+# Use MySQL with your team's schema
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sql_study_room',
+        'USER': 'root',
+        'PASSWORD': 'MrDog!123',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 

@@ -16,26 +16,31 @@ import os
 # Set OpenAI API key from environment
 openai.api_key = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY_HERE")
 
-# Database schema context for LLM
+# Database schema context for LLM - Updated with actual schema
 DATABASE_SCHEMA = """
-Database Schema for SQL Study Room:
+SQL Study Room Database Schema:
 
-Tables:
-1. PROBLEM (Problem_ID, Problem_description, Tag_ID)
+Core Tables:
+1. PROBLEM (Problem_ID, Tag_ID, Problem_title, Problem_description, Review_status, Solution_ID)
 2. TAG (Tag_ID, Difficulty_ID, Concept_ID)
-3. DIFFICULTY_TAG (Difficulty_ID, Difficulty_level) - values: Easy, Medium, Hard
-4. CONCEPT_TAG (Concept_ID, SQL_concept) - values: SELECT, JOIN, GROUP BY, etc.
-5. SUBMISSION (Submission_ID, Problem_ID, Account_number, Submission_description, Is_correct, Time_start, Time_end)
-6. ACCOUNT (Account_number, Username, Password, Email)
-7. USER_PROFILE (Account_number, First_name, Last_name, Is_admin)
-8. ATTEMPT (Attempt_ID, Problem_ID, Account_number, Attempt_time)
-9. QUERY (Query_ID, Account_number, Query_text, Query_time)
+3. DIFFICULTY_TAG (Difficulty_ID, Difficulty_level) - ENUM('EASY','MEDIUM','HARD')
+4. CONCEPT_TAG (Concept_ID, SQL_concept) - e.g., 'BASIC','JOIN','AGGREGATION','CONDITIONAL'
+5. SOLUTION (Solution_ID, Problem_ID, Solution_description, Review_status)
 
-Common queries:
-- Find problems by difficulty: JOIN PROBLEM with TAG and DIFFICULTY_TAG
-- Find problems by concept: JOIN PROBLEM with TAG and CONCEPT_TAG
-- User submissions: JOIN SUBMISSION with ACCOUNT and USER_PROFILE
-- Problem statistics: COUNT submissions, attempts per problem
+User Tables:
+6. USER_PROFILE (Email, First_name, Last_name)
+7. ACCOUNT (Account_number, Email, Register_date, Student_flag, Admin_flag)
+8. USER_AUTH (Email, Password)
+
+Activity Tables:
+9. SUBMISSION (Submission_ID, Problem_ID, Account_number, Submission_description, Is_correct, Time_start, Time_end)
+10. ATTEMPT (Attempt_ID, Problem_ID, Account_number, Attempt_number, Is_submitted, Submission_ID)
+11. QUERY (Query_ID, Account_number, Model_ID, Natural_language_question, Generated_SQL, Generate_time)
+
+Sample Queries:
+- Easy problems: SELECT * FROM PROBLEM p JOIN TAG t ON p.Tag_ID = t.Tag_ID JOIN DIFFICULTY_TAG d ON t.Difficulty_ID = d.Difficulty_ID WHERE d.Difficulty_level = 'EASY'
+- User submissions: SELECT * FROM SUBMISSION s JOIN ACCOUNT a ON s.Account_number = a.Account_number JOIN USER_PROFILE u ON a.Email = u.Email
+- Problem statistics: SELECT p.Problem_ID, COUNT(s.Submission_ID) FROM PROBLEM p LEFT JOIN SUBMISSION s ON p.Problem_ID = s.Problem_ID GROUP BY p.Problem_ID
 """
 
 def is_safe_sql(sql):
