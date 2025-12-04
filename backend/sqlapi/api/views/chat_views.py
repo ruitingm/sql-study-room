@@ -13,17 +13,12 @@ from rest_framework.response import Response
 from openai import OpenAI
 import os
 
-# Lazy-load the client to avoid initialization errors
-_client = None
-
+# 延迟初始化OpenAI客户端
 def get_openai_client():
-    global _client
-    if _client is None:
-        api_key = os.environ.get('OPENAI_API_KEY')
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is not set")
-        _client = OpenAI(api_key=api_key)
-    return _client
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable is not set")
+    return OpenAI(api_key=api_key)
 
 SCHEMA_DESCRIPTION = """
 You are an assistant that writes MySQL SELECT queries for the database `sql_study_room`.
