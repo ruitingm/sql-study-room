@@ -116,7 +116,7 @@ Output only the SQL statement, without explanation or backticks.
 
     client = get_openai_client()
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
