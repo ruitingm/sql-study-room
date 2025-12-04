@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import pymysql
+import os
 
 pymysql.install_as_MySQLdb()
 
@@ -135,28 +136,16 @@ WSGI_APPLICATION = 'sqlapi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sql_study_room',
-        'USER': 'root',
-        'PASSWORD': 'MrDod!123',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': os.environ.get('DB_NAME', 'sql_study_room'),
+        'USER': os.environ.get('DB_USER', 'group6'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', '34.182.64.16'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'connect_timeout': 5,
+        },
     }
 }
-
-# Production database configuration
-# DATABASES = {
-#     "default": {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': "sql_study_room",
-#         'USER': "group6",
-#         "PASSWORD": "VRpB+zaZ15ki8ZAf",
-#         'HOST': "34.182.64.16",
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'connect_timeout': 5,
-#         },
-#     }
-# }
 
 
 
