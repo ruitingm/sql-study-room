@@ -93,17 +93,34 @@ WSGI_APPLICATION = 'sqlapi.wsgi.application'
 #         },
 #     }
 # }
-DATABASES = {
-    'default': {
-     'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sql_study_room',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    }
-}
+# Sharon's database configuration
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'sql_study_room',
+#         'USER': 'BeautySharon',
+#         'PASSWORD': 'StrongPwd__123!',
+#         'HOST': '34.168.79.184',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'connect_timeout': 5, 
+#         },
+#     }
+# }
 
+# Default local configuration
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'sql_study_room',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
+
+# Susie's database configuration
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -115,8 +132,9 @@ DATABASES = {
 #     }
 # }
 
+# Hazel's local database configuration (currently active)
 DATABASES = {
-    "default": {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DB_NAME', 'sql_study_room'),
         'USER': os.environ.get('DB_USER', 'group6'),
