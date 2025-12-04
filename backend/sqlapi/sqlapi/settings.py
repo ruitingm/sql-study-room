@@ -90,27 +90,27 @@ WSGI_APPLICATION = 'sqlapi.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'week1',
-#         'USER': 'root',
-#         'PASSWORD': 'susie0114',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306'
-#     }
-# }
-
 DATABASES = {
-    "default": {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "sql_study_room",
-        'USER': "ruitingm",
-        "PASSWORD": "123A456b789c.",
-        'HOST': "127.0.0.1",
+        'NAME': 'sql_study_room',
+        'USER': 'root',
+        'PASSWORD': 'susie0114',
+        'HOST': '127.0.0.1',
         'PORT': '3306'
     }
 }
+
+# DATABASES = {
+#     "default": {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': "sql_study_room",
+#         'USER': "ruitingm",
+#         "PASSWORD": "123A456b789c.",
+#         'HOST': "127.0.0.1",
+#         'PORT': '3306'
+#     }
+# }
 
 
 

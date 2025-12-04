@@ -1,12 +1,65 @@
 """
-- POST /login/                  authenticate user (email + password), return profile & account info  
-- GET  /profile/{id}/           fetch user profile and account info by account number  
-- POST /profile/{id}/update/    update user first/last name, return updated profile  
+- POST /auth/signup/                  create a new user account
+- POST /auth/login/                   authenticate user (email + password), return profile & account info  
+- GET  /profile/{id}/                 fetch user profile and account info by account number  
+- POST /profile/{id}/update/          update user first/last name, return updated profile  
+- GET  /users/                        list all users for admin dashboard  
+- DELETE /users/{id}/                 delete user by account number
 """
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
+from django.utils import timezone
+
+@api_view(['POST'])
+def signup(request):
+    first_name = request.data.get("firstName")
+    last_name = request.data.get("lastName")
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if not all([first_name, last_name, email, password]):
+        return Response({"success": False, "message": "Missing required fields."}, status=400)
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Email FROM USER_AUTH WHERE Email=%s", [email])
+        exists = cursor.fetchone()
+
+    if exists:
+        return Response({"success": False, "message": "Email already exists"}, status=400)
+
+    register_date = timezone.now()
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO USER_PROFILE (Email, First_name, Last_name)
+            VALUES (%s, %s, %s)
+        """, [email, first_name, last_name])
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO ACCOUNT (Email, Register_date, Student_flag, Admin_flag)
+            VALUES (%s, %s, %s, %s)
+        """, [email, register_date, True, False])
+        account_number = cursor.lastrowid
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO USER_AUTH (Email, Password)
+            VALUES (%s, %s)
+        """, [email, password])
+
+    return Response({
+        "success": True,
+        "email": email,
+        "firstName": first_name,
+        "lastName": last_name,
+        "accountNumber": account_number,
+        "isStudent": True,
+        "isAdmin": False,
+    }, status=201)
+
 
 @api_view(['POST'])
 def login(request):
@@ -123,3 +176,65 @@ def update_profile(request, account_number):
         "isStudent": profile[4],
         "isAdmin": profile[5],
     })
+
+
+@api_view(['GET'])
+def list_users(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                p.First_name,
+                p.Last_name,
+                p.Email,
+                a.Student_flag,
+                a.Admin_flag,
+                a.Account_number
+            FROM USER_PROFILE p
+            JOIN ACCOUNT a ON p.Email = a.Email
+            ORDER BY p.First_name, p.Last_name
+        """)
+        rows = cursor.fetchall()
+
+    users = []
+    for row in rows:
+        users.append({
+            "firstName": row[0],
+            "lastName": row[1],
+            "email": row[2],
+            "isStudent": row[3],
+            "isAdmin": row[4],
+            "accountNumber": row[5],
+        })
+
+    return Response(users)
+
+
+@api_view(['DELETE'])
+def delete_user(request, account_number):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT Email FROM ACCOUNT WHERE Account_number = %s
+        """, [account_number])
+        row = cursor.fetchone()
+
+    if not row:
+        return Response({"success": False, "message": "User not found"}, status=404)
+
+    email = row[0]
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM ACCOUNT WHERE Account_number = %s
+        """, [account_number])
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM USER_PROFILE WHERE Email = %s
+        """, [email])
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM USER_AUTH WHERE Email = %s
+        """, [email])
+
+    return Response({"success": True})
