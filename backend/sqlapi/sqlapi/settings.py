@@ -76,7 +76,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sqlapi.wsgi.application'
 
-
+# Default local configuration
+DATABASES = {
+    'default': {
+     'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sql_study_room',
+        'USER': 'group6',
+        'PASSWORD': 'VRpB+zaZ15ki8ZAf',
+        'HOST': '34.182.64.16',
+        'PORT': '3306',
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
