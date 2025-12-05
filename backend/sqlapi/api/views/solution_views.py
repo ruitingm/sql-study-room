@@ -1,3 +1,8 @@
+"""
+- get_solution: retrieves the solution for a given problem ID
+- add_solution: adds a new solution for a problem
+- update_solution: updates an existing solution for a problem
+"""
 import json
 from django.db import connection
 from django.http import JsonResponse
@@ -27,6 +32,7 @@ def get_solution(request, pId):
             'error': str(e),
             'success': False
         })
+
 
 @api_view(['POST'])
 def add_solution(request):
@@ -61,6 +67,7 @@ def add_solution(request):
             'success': False
         })
 
+
 @api_view(['PUT'])
 def update_solution(request, pid):
     data = json.loads(request.body)
@@ -82,3 +89,4 @@ def update_solution(request, pid):
             'error': str(e),
             'success': False
         })
+    

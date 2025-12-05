@@ -1,3 +1,8 @@
+"""
+- list_tags: retrieves all tags with their difficulty and concept
+- list_tag_problems: retrieves all problems associated with a specific tag ID
+"""
+
 from django.db import connection
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -70,4 +75,3 @@ def list_tag_problems(request, tag_id):
         })
 
     return Response(problems)
-

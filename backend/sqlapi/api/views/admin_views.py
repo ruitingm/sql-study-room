@@ -9,8 +9,7 @@ def admin_user_stats(request):
     Admin-side statistics: per-user submission summary.
 
     For each account, return:
-    - account_number
-    - email, first_name, last_name
+    - account_number, email, first_name, last_name
     - total_submissions
     - correct_submissions
     """

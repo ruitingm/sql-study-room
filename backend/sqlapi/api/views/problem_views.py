@@ -2,6 +2,10 @@
 - list_problems: returns a JSON list of all problems 
 - get_problem: returns one problem
 - submit_problem: handles submitting a solution for a problem (inserting into SUBMISSION table)  
+- add_problem: adds a new problem to the PROBLEM table
+- delete_problem: deletes a problem from the PROBLEM table
+- update_problem: updates an existing problem in the PROBLEM table
+- publish_problem: sets the Review_status of a problem to published (1)
 """
 import json
 from django.db import connection
@@ -129,6 +133,7 @@ def submit_problem(request, pid):
 
     return JsonResponse({"success": True})
 
+
 #add problem
 @api_view(["POST"])
 def add_problem(request):
@@ -228,6 +233,6 @@ def publish_problem(request, pid):
         return JsonResponse({"success": True})
 
     except Exception as e:
-        # 打印错误，这能告诉我们为什么 500
+        # print the error so we know why status=500
         print("Publish error:", str(e))
         return JsonResponse({"error": str(e)}, status=500)

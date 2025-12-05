@@ -6,14 +6,14 @@ Open SQL Programming:
 - Execute the SQL against the MySQL database
 - Return the results as JSON
 """
-
 from django.db import connection
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from openai import OpenAI
 import os
 
-# 延迟初始化OpenAI客户端
+# Creating the OpenAI client only when it’s first needed, 
+# instead of creating it immediately when the program starts
 def get_openai_client():
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
@@ -135,7 +135,6 @@ def execute_sql(sql: str):
     """
     Execute the generated SQL and return results as:
     (columns, rows_as_dict_list)
-
     A simple safety check is enforced: only SELECT statements are allowed.
     """
     if not sql:

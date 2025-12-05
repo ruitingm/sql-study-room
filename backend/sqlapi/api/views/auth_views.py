@@ -188,6 +188,7 @@ def update_profile(request, account_number):
         "isAdmin": profile[5],
     })
 
+
 @api_view(['GET'])
 def list_users(request):
     """
