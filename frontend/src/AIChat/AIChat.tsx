@@ -1,157 +1,180 @@
-/**
- * Chat interface to use LLM assistant
- * - Maintains message history in state and shows chat UI
- * - Supports a route for creating new problems via LLM ("/llm-problem-creation")
- *
- * TODO:
- * Right now uses local component state. Need to connect this to backend and LLM
- */
+// frontend/src/AIChat/AIChat.tsx
 
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, Routes, Route } from "react-router-dom";
-import { Plus, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import {
+  callNL2SQL,
+  formatNL2SQLResult,
+  type NL2SQLResponse,
+} from "../api/chat";
 import LLMProblemCreation from "./LLMProblemCreation";
-import { callNL2SQL, formatQueryResult } from "../api/chat";
 
-export default function AIChat() {
-  const navigate = useNavigate();
-  const [messages, setMessages] = useState([
-    { sender: "user", text: "Hello there!" },
-    { sender: "ai", text: "Hi, How can I help you?" },
-    { sender: "user", text: "Give me a SQL question using JOIN." },
-    {
-      sender: "ai",
-      text: `Tables:
+type ChatRole = "user" | "assistant";
 
-customers
-customer_id | name | city
-1 | Alice | New York
-2 | Bob | Chicago
-3 | Charlie | Los Angeles
+interface ChatMessage {
+  id: number;
+  role: ChatRole;
+  text: string;
+}
 
-orders
-order_id | customer_id | order_date | total_amount
-101 | 1 | 2024-06-15 | 150.00
-102 | 2 | 2024-07-01 | 200.00
-103 | 1 | 2024-07-10 | 300.00
-104 | 3 | 2024-07-11 | 250.00
-
-Question:
-Write a SQL query to list all customers and their total amount spent, including customers who haven’t placed any orders yet.`,
-    },
-  ]);
-
-  const model = "GPT";
+function ChatPanel() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [lastRawResponse, setLastRawResponse] =
+    useState<NL2SQLResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  async function handleSend() {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    setError(null);
 
-    const userQuestion = input.trim();
-    const userMessage = { sender: "user", text: userQuestion };
-
-    // 添加用户消息
-    setMessages((prev) => [...prev, userMessage]);
+    // append user message
+    const userMsg: ChatMessage = {
+      id: Date.now(),
+      role: "user",
+      text: trimmed,
+    };
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
 
     try {
-      // 调用NL2SQL API
-      const response = await callNL2SQL(userQuestion);
-      const formattedResult = formatQueryResult(response);
+      const res = await callNL2SQL(trimmed);
+      setLastRawResponse(res);
+      const assistantText = formatNL2SQLResult(res);
 
-      // 添加AI响应
-      const aiMessage = { sender: "ai", text: formattedResult };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      // 处理错误
-      const errorMessage = {
-        sender: "ai",
-        text: `Sorry, I encountered an error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }\n\nPlease try again or contact support if the problem persists.`,
+      const assistantMsg: ChatMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        text: assistantText,
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch (e: any) {
+      const msg = e?.message ?? "Unknown error";
+      setError(msg);
+
+      const assistantMsg: ChatMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        text: `❌ Failed to call backend: ${msg}`,
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
     } finally {
       setIsLoading(false);
     }
-  };
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") sendMessage();
-  };
-  const chatInterface = (
-    <div className="flex flex-col h-full rounded-xl bg-stone-100 shadow-lg">
-      <div className="bg-neutral-400 text-stone-800 text-center py-4 font-semibold text-xl rounded-t-xl flex flex-row items-center">
-        <div className="flex-1">{model} Chat Assistant</div>
-        <div className="me-5 text-sm">
-          <button
-            onClick={() => navigate("llm-problem-creation")}
-            className="bg-neutral-300 text-stone-700 px-4 py-2 rounded-md hover:ring-rose-700 hover:ring-2  transition flex flex-row items-center space-x-2"
-          >
-            <Plus size={16} />
-            <span>Add New Problem</span>
-          </button>
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void handleSend();
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-full max-h-[calc(100vh-80px)] border rounded-xl shadow-sm bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50">
+        <div className="font-semibold text-slate-800">
+          Natural Language → SQL Assistant
         </div>
+        <Link
+          to="llm-problem-creation"
+          className="text-sm text-rose-700 hover:text-rose-900 underline"
+        >
+          LLM Problem Creation
+        </Link>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col space-y-3 bg-stone-50">
-        {messages.map((msg, index) => (
+
+      {/* Chat history */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm bg-slate-50">
+        {messages.length === 0 && (
+          <div className="text-slate-500">
+            Ask a question such as:
+            <ul className="list-disc list-inside mt-1">
+              <li>"Show me all problems tagged as EASY."</li>
+              <li>
+                "How many problems did account 10001 submit in the last 7
+                days?"
+              </li>
+              <li>
+                "List all submissions with their problem description for
+                account 10001."
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {messages.map((m) => (
           <div
-            key={index}
-            className={`max-w-[75%] px-4 py-2 rounded-xl text-md ${
-              msg.sender === "user"
-                ? "bg-neutral-600 text-stone-50 self-end rounded-br-none"
-                : "bg-stone-200 text-stone-800 self-start rounded-bl-none"
+            key={m.id}
+            className={`flex ${
+              m.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
-            {msg.sender == "ai" && (
-              <pre className="text-md font-sans whitespace-pre-wrap">
-                {msg.text}
-              </pre>
-            )}
-            {msg.sender == "user" && <div>{msg.text}</div>}
+            <div
+              className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 ${
+                m.role === "user"
+                  ? "bg-rose-600 text-white"
+                  : "bg-white border border-slate-200 text-slate-800"
+              }`}
+            >
+              {m.text}
+            </div>
           </div>
         ))}
-        <div ref={chatEndRef} />
       </div>
-      <div className="border-t border-gray-300 p-4 bg-stone-50 flex items-center rounded-bl-xl rounded-br-xl">
+
+      {/* Optional raw JSON debug panel */}
+      {lastRawResponse && (
+        <div className="border-t bg-slate-100 px-4 py-2 text-xs text-slate-600">
+          <details>
+            <summary className="cursor-pointer">
+              Raw response (for debugging / demo)
+            </summary>
+            <pre className="mt-1 max-h-40 overflow-auto">
+              {JSON.stringify(lastRawResponse, null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
+
+      {error && (
+        <div className="px-4 py-2 text-xs text-red-600 border-t bg-red-50">
+          {error}
+        </div>
+      )}
+
+      {/* Input bar */}
+      <div className="flex items-center gap-2 px-4 py-3 border-t bg-white">
         <input
           type="text"
-          placeholder={
-            isLoading ? "Processing..." : "Ask a question about the database..."
-          }
+          placeholder="Ask in natural language…"
+          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyPress}
+          onKeyDown={handleKeyDown}
           disabled={isLoading}
-          className="flex-1 px-4 py-2 rounded-lg bg-gray-100 text-md focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
-          onClick={sendMessage}
+          onClick={handleSend}
           disabled={isLoading || !input.trim()}
-          className="ml-3 bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-4 py-2 rounded-md text-sm font-medium bg-rose-700 text-white disabled:bg-slate-300 disabled:text-slate-500 hover:bg-rose-800 transition"
         >
-          {isLoading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Processing
-            </>
-          ) : (
-            "Send"
-          )}
+          {isLoading ? "Thinking…" : "Send"}
         </button>
       </div>
     </div>
   );
+}
 
+export default function AIChat() {
   return (
     <Routes>
-      <Route index element={chatInterface} />
+      <Route path="/" element={<ChatPanel />} />
       <Route path="llm-problem-creation" element={<LLMProblemCreation />} />
     </Routes>
   );
