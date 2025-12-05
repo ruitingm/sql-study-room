@@ -76,7 +76,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sqlapi.wsgi.application'
 
-# Default local configuration
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+# Default cloud configuration
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.mysql',
@@ -87,22 +90,22 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# GCP database configuration
 # DATABASES = {
 #     'default': {
-#      'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'sql_study_room',
-#         'USER': 'BeautySharon',
-#         'PASSWORD': 'StrongPwd__123!',
-#         'HOST': '34.168.79.184',
-#         'PORT': '3306',
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('DB_NAME', 'sql_study_room'),
+#         'USER': os.environ.get('DB_USER', 'group6'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+#         'HOST': os.environ.get('DB_HOST', '34.182.64.16'),
+#         'PORT': os.environ.get('DB_PORT', '3306'),
 #         'OPTIONS': {
-#             'connect_timeout': 5, 
+#             'connect_timeout': 5,
 #         },
 #     }
 # }
+
 # Sharon's database configuration
 # DATABASES = {
 #     'default': {
@@ -134,27 +137,13 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'week1',
+#         'NAME': 'sql_study_room',
 #         'USER': 'root',
 #         'PASSWORD': 'susie0114',
 #         'HOST': '127.0.0.1',
 #         'PORT': '3306'
 #     }
 # }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'sql_study_room'),
-        'USER': os.environ.get('DB_USER', 'group6'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'HOST': os.environ.get('DB_HOST', '34.182.64.16'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
-        'OPTIONS': {
-            'connect_timeout': 5,
-        },
-    }
-}
 
 
 

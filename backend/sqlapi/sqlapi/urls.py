@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path
 from api.views.health_views import health
-from api.views.auth_views import login, get_profile, update_profile, list_users, delete_user
+from api.views.auth_views import signup, login, get_profile, update_profile, list_users, delete_user
 from api.views.problem_views import list_problems, get_problem, submit_problem, add_problem, delete_problem,update_problem, publish_problem
 from api.views.tag_views import list_tags, list_tag_problems
 from api.views.submission_views import list_submissions
@@ -27,6 +27,7 @@ from api.views.solutioin_views import get_solution
 
 urlpatterns = [
     path("health/", health),
+    path("auth/signup/", signup),
     path("auth/login/", login),
     path("profile/<int:account_number>/", get_profile),
     path("profile/<int:account_number>/update/", update_profile),

@@ -1,12 +1,76 @@
 """
-- POST /login/                  authenticate user (email + password), return profile & account info  
+- POST /auth/signup/            create a new user account
+- POST /auth/login/             authenticate user (email + password), return profile & account info  
 - GET  /profile/{id}/           fetch user profile and account info by account number  
 - POST /profile/{id}/update/    update user first/last name, return updated profile  
+- GET  /users/                  list all users with profile + account info
+- DELETE /users/{id}/           delete a user by account number
 """
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+
+@api_view(['POST'])
+def signup(request):
+    first_name = request.data.get("firstName")
+    last_name = request.data.get("lastName")
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if not all([first_name, last_name, email, password]):
+        return Response({"success": False, "message": "Missing required fields."}, status=400)
+
+    try:
+        with transaction.atomic():
+            # Check if email already exists
+            with connection.cursor() as cursor:
+                cursor.execute("""SELECT 1 FROM ACCOUNT WHERE Email = %s
+                    UNION SELECT 1 FROM USER_AUTH WHERE Email = %s
+                """, [email, email])
+                if cursor.fetchone():
+                    return Response({"success": False, "message": "Email already exists."}, status=400)
+
+        register_date = timezone.localdate()
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO USER_PROFILE (Email, First_name, Last_name)
+                VALUES (%s, %s, %s)
+            """, [email, first_name, last_name])
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO ACCOUNT (Email, Register_date, Student_flag, Admin_flag)
+                VALUES (%s, %s, %s, %s)
+            """, [email, register_date, True, False])
+            account_number = cursor.lastrowid
+
+        with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO USER_AUTH (Email, Password)
+                    VALUES (%s, %s)
+                """, [email, password])
+
+    except IntegrityError as e:
+        # Surface a clear error instead of a generic 500
+        print("Signup DB error:", e)
+        return Response(
+            {"success": False, "message": "Database error while creating account."},
+            status=400,
+        )
+
+    return Response({
+        "success": True,
+        "email": email,
+        "firstName": first_name,
+        "lastName": last_name,
+        "accountNumber": account_number,
+        "isStudent": True,
+        "isAdmin": False,
+    }, status=201)
+
 
 @api_view(['POST'])
 def login(request):
@@ -159,37 +223,44 @@ def list_users(request):
 
     return Response(users)
 
+
 @api_view(['DELETE'])
 def delete_user(request, account_number):
-    """
-    Delete a user by account number.
-    """
+    # 0. Fetch email for this account
     with connection.cursor() as cursor:
-        # Get email first
         cursor.execute("""
             SELECT Email FROM ACCOUNT WHERE Account_number = %s
         """, [account_number])
-        result = cursor.fetchone()
-        
-        if not result:
-            return Response({"success": False, "message": "User not found"}, status=404)
-        
-        email = result[0]
-        
-        # Delete from ACCOUNT (will cascade to other tables if FK constraints are set)
+        row = cursor.fetchone()
+
+    if not row:
+        return Response({"success": False, "message": "User not found"}, status=404)
+
+    email = row[0]
+
+    # 1. Delete submissions
+    with connection.cursor() as cursor:
         cursor.execute("""
-            DELETE FROM ACCOUNT WHERE Account_number = %s
+            DELETE FROM SUBMISSION
+            WHERE Account_number = %s
         """, [account_number])
-        
-        # Delete from USER_AUTH
+
+    # 2. Delete USER_AUTH row
+    with connection.cursor() as cursor:
         cursor.execute("""
             DELETE FROM USER_AUTH WHERE Email = %s
         """, [email])
-        
-        # Delete from USER_PROFILE
+
+    # 3. Delete ACCOUNT row
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM ACCOUNT WHERE Account_number = %s
+        """, [account_number])
+
+    # 4. Delete USER_PROFILE row
+    with connection.cursor() as cursor:
         cursor.execute("""
             DELETE FROM USER_PROFILE WHERE Email = %s
         """, [email])
-    
-    return Response({"success": True, "message": "User deleted successfully"})
 
+    return Response({"success": True})
