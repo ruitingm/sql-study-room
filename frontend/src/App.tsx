@@ -12,6 +12,7 @@
 
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+import API_BASE_URL from "./api/config";
 import Login from "./Login/Login";
 import Signup from "./Login/Signup";
 import MainPage from "./MainPage/MainPage";
