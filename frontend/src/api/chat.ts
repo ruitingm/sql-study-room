@@ -1,89 +1,83 @@
+// frontend/src/api/chat.ts
+
+import axios from "axios";
 import API_BASE_URL from "./config";
 
-// NL2SQL请求类型
-export interface NL2SQLRequest {
-  question: string;
-}
-
-// NL2SQL响应类型
+/**
+ * Shape of the response returned by backend /nl2sql/ endpoint.
+ * It can be either a successful payload with SQL + result,
+ * or an error payload with error + detail (+ optional sql).
+ */
 export interface NL2SQLResponse {
-  question: string;
-  sql: string;
-  columns: string[];
-  rows: Array<Record<string, any>>;
-}
-
-// 错误响应类型
-export interface NL2SQLError {
-  error: string;
-  detail?: string;
+  question?: string;
   sql?: string;
+  columns?: string[];
+  rows?: Record<string, any>[];
+
+  // error case
+  error?: string;
+  detail?: string;
 }
 
 /**
- * 调用后端NL2SQL API
- * 将自然语言转换为SQL并执行查询
+ * Call backend Open SQL + LLM endpoint.
+ * POST { question } -> /nl2sql/
  */
-export const callNL2SQL = async (question: string): Promise<NL2SQLResponse> => {
-  const url = `${API_BASE_URL}/nl2sql/`;
-  
-  const requestBody: NL2SQLRequest = {
-    question: question.trim()
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      // 处理HTTP错误
-      const errorData: NL2SQLError = await response.json();
-      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const data: NL2SQLResponse = await response.json();
-    return data;
-
-  } catch (error) {
-    // 网络错误或其他错误
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to connect to NL2SQL service');
-  }
-};
+export async function callNL2SQL(
+  question: string
+): Promise<NL2SQLResponse> {
+  const resp = await axios.post<NL2SQLResponse>(
+    `${API_BASE_URL}/nl2sql/`,
+    { question }
+  );
+  return resp.data;
+}
 
 /**
- * 格式化SQL查询结果为可读的文本
+ * Format NL2SQLResponse into a human-readable string
+ * to be shown in the chat bubble.
  */
-export const formatQueryResult = (response: NL2SQLResponse): string => {
-  const { question, sql, columns, rows } = response;
-  
-  let result = `Question: ${question}\n\n`;
-  result += `Generated SQL:\n${sql}\n\n`;
-  
-  if (rows.length === 0) {
-    result += 'No results found.';
-    return result;
+export function formatNL2SQLResult(res: NL2SQLResponse): string {
+  // backend error
+  if (res.error) {
+    const detail = res.detail ? `\nDetail: ${res.detail}` : "";
+    const sqlInfo = res.sql ? `\n\nGenerated SQL:\n${res.sql}` : "";
+    return `Backend reported an error: ${res.error}${detail}${sqlInfo}`;
   }
-  
-  result += `Results (${rows.length} rows):\n`;
-  
-  // 创建简单的表格格式
-  if (columns.length > 0) {
-    result += columns.join(' | ') + '\n';
-    result += columns.map(() => '---').join(' | ') + '\n';
-    
-    rows.forEach(row => {
-      const values = columns.map(col => row[col] || 'NULL');
-      result += values.join(' | ') + '\n';
-    });
+
+  const sqlPart = res.sql
+    ? `Generated SQL:\n${res.sql}\n`
+    : "No SQL was returned.\n";
+
+  const cols = res.columns ?? [];
+  const rows = res.rows ?? [];
+
+  if (!cols.length) {
+    return `${sqlPart}\n(No result columns returned)`;
   }
-  
-  return result;
-};
+
+  if (!rows.length) {
+    return `${sqlPart}\nQuery returned 0 rows.`;
+  }
+
+  // Build a simple table-like string for the first N rows
+  const header = cols.join(" | ");
+
+  const maxRows = 10; // avoid dumping too much in chat
+  const bodyLines = rows.slice(0, maxRows).map((row) =>
+    cols
+      .map((c) =>
+        row[c] === null || row[c] === undefined ? "" : String(row[c])
+      )
+      .join(" | ")
+  );
+
+  const truncated =
+    rows.length > maxRows
+      ? `\n… (${rows.length - maxRows} more rows)`
+      : "";
+
+  return `${sqlPart}\nResult (up to ${maxRows} rows):\n${header}\n${bodyLines.join(
+    "\n"
+  )}${truncated}`;
+}
